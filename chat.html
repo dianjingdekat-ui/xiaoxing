@@ -11,11 +11,7 @@
         * { box-sizing: border-box; }
         body { font-family: 'Rounded Mplus 1c', 'Microsoft YaHei', sans-serif; background-color: var(--secondary); color: var(--text); margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         
-        .container { 
-            width: 100%; height: 100%; max-width: 600px; 
-            background: white; display: flex; flex-direction: column; 
-            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); 
-        }
+        .container { width: 100%; height: 100%; max-width: 600px; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         
         .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 1.1em; height: 60px; flex-shrink: 0; }
         .back-btn { color: white; text-decoration: none; font-size: 1.2em; }
@@ -24,40 +20,35 @@
         .chat-box { 
             flex: 1; 
             padding: 15px; 
-            padding-bottom: 120px; /* 防止被底部挡住 */
+            padding-bottom: 160px; /* 超大空间防止遮挡！ */
             overflow-y: auto; 
             background: #FFFDF5; 
             scroll-behavior: smooth; 
-        }
-        
-        .message { margin-bottom: 15px; display: flex; align-items: flex-start; }
+        }.message-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .message { display: flex; align-items: flex-start; }
         .message.user { flex-direction: row-reverse; }
+        
         .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin: 0 10px; flex-shrink: 0; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .user .avatar { background: #FFB7C5; } .ai .avatar { background: #FFD700; }
         
-        .bubble { max-width: 70%; padding: 8px 12px; border-radius: 20px; font-size: 0.95em; line-height: 1.4; word-wrap: break-word; position: relative; }
+        .bubble-container { display: flex; flex-direction: column; max-width: 75%; }
+        .user .bubble-container { align-items: flex-end; }
+        
+        .bubble { padding: 10px 14px; border-radius: 20px; font-size: 0.95em; line-height: 1.4; word-wrap: break-word; position: relative; }
         .user .bubble { background: var(--accent); color: white; border-bottom-right-radius: 5px; }
         .ai .bubble { background: white; border: 2px solid var(--primary); color: var(--text); border-bottom-left-radius: 5px; }
-        .bubble p { margin: 5px 0; } /* 压缩段落间距 */
+        .bubble p { margin: 5px 0; }
         
-        /* 底部工具栏 + 输入框 */
-        .input-wrapper {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 600px;
-            background: white; border-top: 1px solid #eee;
-            display: flex; flex-direction: column;
-            padding: 5px 10px 10px 10px;
-            z-index: 9999;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        }
-
-        .toolbar {
-            display: flex; gap: 20px; padding: 5px 10px 8px 10px;
-            color: #aaa; font-size: 1.1em;
-        }
-        .tool-btn { cursor: pointer; transition: color 0.2s; }
-        .tool-btn:hover { color: var(--primary); }
+        /* 消息下方操作栏 */
+        .msg-actions { display: flex; gap: 15px; margin-top: 5px; padding: 0 10px; font-size: 0.85em; color: #aaa; opacity: 0.8; }
+        .user .msg-actions { justify-content: flex-end; }
+        .action-btn { cursor: pointer; transition: color 0.2s; display: flex; align-items: center; gap: 3px; }
+        .action-btn:hover { color: var(--primary); }
         
+        /* 底部工具栏 */
+        .input-wrapper { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: white; border-top: 1px solid #eee; display: flex; flex-direction: column; padding: 5px 10px 15px 10px; z-index: 9999; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+        .toolbar { display: flex; gap: 20px; padding: 5px 10px 8px 10px; color: #aaa; font-size: 1.2em; }
+        .tool-btn { cursor: pointer; transition: color 0.2s; } .tool-btn:hover { color: var(--primary); }
         .input-area { display: flex; align-items: center; width: 100%; }
         input { flex: 1; padding: 10px; border: 2px solid var(--secondary); border-radius: 25px; outline: none; font-size: 1em; height: 40px; }
         input:focus { border-color: var(--accent); }
@@ -66,9 +57,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10000; }
         .modal-content { background: white; padding: 20px; border-radius: 20px; width: 85%; max-width: 320px; text-align: left; max-height: 80vh; overflow-y: auto; }
         .modal input, .modal select { width: 100%; margin: 5px 0 15px 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
-        .modal label { font-size: 0.85em; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 8px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; } .btn-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 8px; }
     </style>
 </head><body>
     <div class="container">
@@ -79,20 +68,28 @@
         </div>
         
         <div class="chat-box" id="chatBox">
-            <div class="message ai">
-                <div class="avatar">⭐</div>
-                <div class="bubble">主人好！请点击右上角设置⚙️，填入Key并拉取模型哦！✨</div>
+            <div class="message-group ai">
+                <div class="message">
+                    <div class="avatar">⭐</div>
+                    <div class="bubble-container">
+                        <div class="bubble">主人好！我是超强版小星！<br>每条消息下面都有操作按钮哦！✨</div>
+                        <!-- 操作栏示例 -->
+                        <div class="msg-actions">
+                            <span class="action-btn" onclick="copyText(this)">📋复制</span>
+                            <span class="action-btn" onclick="speakText(this)">🔊朗读</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 底部输入区域 + 工具栏 -->
         <div class="input-wrapper">
-            <!-- 工具栏：图片、语音、视频、重新生成 -->
             <div class="toolbar">
                 <i class="fas fa-image tool-btn" onclick="alert('发图片功能还在开发中哦！📸')"></i>
                 <i class="fas fa-microphone tool-btn" onclick="alert('语音功能还在开发中哦！🎤')"></i>
                 <i class="fas fa-video tool-btn" onclick="alert('视频通话还在开发中哦！📹')"></i>
-                <i class="fas fa-sync-alt tool-btn" onclick="regenerateReply()" title="重新生成回复" style="margin-left:auto;"></i>
+                <i class="fas fa-sync-alt tool-btn" onclick="regenerateLast()" title="重新生成回复" style="margin-left:auto;"></i>
             </div>
             
             <div class="input-area">
@@ -128,14 +125,13 @@
             </div>
         </div>
     </div><script>
-    // 初始化配置
     let config = {
         host: localStorage.getItem('apiHost') || 'https://api.openai.com',
         key: localStorage.getItem('apiKey') || '',
         model: localStorage.getItem('apiModel') || 'gemini-pro'
     };
     
-    let lastUserMessage = ""; // 记录上一条消息用于重试
+    let lastUserMessage = ""; // 记录上一条用于重试
 
     const chatBox = document.getElementById('chatBox');
     
@@ -162,36 +158,22 @@
         const host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
         const key = document.getElementById('apiKeyInput').value.trim();
         if (!key) return alert('请先填入 API Key！🥺');
-
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = '拉取中...';
-        btn.disabled = true;
-
+        const btn = event.target; btn.innerText = '拉取中...'; btn.disabled = true;
         try {
             const response = await fetch(`${host}/v1/models`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${key}` }
+                method: 'GET', headers: { 'Authorization': `Bearer ${key}` }
             });
             if (!response.ok) throw new Error('拉取失败: ' + response.status);
-
             const data = await response.json();
-            const select = document.getElementById('modelSelect');
-            select.innerHTML = '';
+            const select = document.getElementById('modelSelect'); select.innerHTML = '';
             const models = data.data.sort((a, b) => a.id.localeCompare(b.id));
             models.forEach(m => {
                 const opt = document.createElement('option');
-                opt.value = m.id;
-                opt.text = m.id;
-                select.add(opt);
+                opt.value = m.id; opt.text = m.id; select.add(opt);
             });
             alert(`成功拉取到 ${models.length} 个模型！🎉`);
-        } catch (error) {
-            alert('拉取失败！\n' + error.message);
-        } finally {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }
+        } catch (error) { alert('拉取失败！\n' + error.message); } 
+        finally { btn.innerText = '📥 拉取模型列表'; btn.disabled = false; }
     }
 
     function saveSettings() {
@@ -203,63 +185,92 @@
         localStorage.setItem('apiModel', config.model);
         alert('配置已保存！🎉');
         toggleSettings();
-    }        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if (!text) return;
-            if (!config.key) { alert('请先填 API Key！🔑'); toggleSettings(); return; }
+    }async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!config.key) { alert('请先填 API Key！🔑'); toggleSettings(); return; }
 
-            lastUserMessage = text; // 保存这一条
-            addMessage(text, 'user');
-            input.value = '';
+    lastUserMessage = text;
+    addMessage(text, 'user');
+    input.value = '';
 
-            await sendToAI(text);
-        }
-        
-        async function regenerateReply() {
-            if (!lastUserMessage) return alert("还没有发过消息哦！无法重新生成！");
+    await sendToAI(text);
+}
+
+async function regenerateLast() {
+    if (!lastUserMessage) return alert("还没有发过消息哦！");
+    await sendToAI(lastUserMessage, true);
+}
+
+async function sendToAI(text, isRetry = false) {
+    const headerTitle = document.querySelector('.header span');
+    const originalTitle = "和小星聊天 💬";
+    headerTitle.innerText = isRetry ? '小星正在重新思考... 🔄' : '小星正在思考... 🤔';
+
+    try {
+        const response = await callChatAPI(text);
+        addMessage(response, 'ai');
+    } catch (error) {
+        addMessage('出错啦... 🥺\n' + error.message, 'ai');
+    } finally {
+        headerTitle.innerText = originalTitle;
+    }
+}function addMessage(text, sender) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = `message-group ${sender}`;
             
-            const headerTitle = document.querySelector('.header span');
-            const originalTitle = headerTitle.innerText;
-            headerTitle.innerText = '小星正在重新思考... 🔄';
-            
-            // 这里为了简单，我们直接再发一次请求，不删除旧消息
-            // 以后可以做成把最后一条消息删掉再重发
-            
-            try {
-                const response = await callChatAPI(lastUserMessage);
-                addMessage(response, 'ai');
-            } catch (error) {
-                addMessage('重试失败啦... 🥺\n' + error.message, 'ai');
-            } finally {
-                headerTitle.innerText = originalTitle;
-            }
-        }
-
-        async function sendToAI(text) {
-            const headerTitle = document.querySelector('.header span');
-            const originalTitle = headerTitle.innerText;
-            headerTitle.innerText = '小星正在思考... 🤔';
-
-            try {
-                const response = await callChatAPI(text);
-                addMessage(response, 'ai');
-            } catch (error) {
-                addMessage('出错啦... 🥺\n' + error.message, 'ai');
-            } finally {
-                headerTitle.innerText = originalTitle;
-            }
-        }
-
-        function addMessage(text, sender) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}`;
             let avatarHtml = sender === 'ai' ? '<div class="avatar">⭐</div>' : '<div class="avatar">👤</div>';
-            let bubbleHtml = `<div class="bubble">${typeof marked !== 'undefined' ? marked.parse(text) : text}</div>`;
-            if (sender === 'ai') msgDiv.innerHTML = avatarHtml + bubbleHtml;
-            else msgDiv.innerHTML = bubbleHtml + avatarHtml;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            let bubbleContent = typeof marked !== 'undefined' ? marked.parse(text) : text;
+            
+            // 按钮栏 HTML
+            let actionsHtml = '';
+            if (sender === 'ai') {
+                actionsHtml = `
+                    <div class="msg-actions">
+                        <span class="action-btn" onclick="copyText(this)">📋复制</span>
+                        <span class="action-btn" onclick="speakText(this)">🔊朗读</span>
+                        <span class="action-btn" onclick="regenerateLast()">🔄重试</span>
+                        <span class="action-btn" onclick="deleteMessage(this)">🗑️删除</span>
+                    </div>`;
+            } else {
+                actionsHtml = `
+                    <div class="msg-actions">
+                        <span class="action-btn" onclick="deleteMessage(this)">🗑️删除</span>
+                        <span class="action-btn" onclick="copyText(this)">📋复制</span>
+                    </div>`;
+            }
+
+            groupDiv.innerHTML = `
+                <div class="message ${sender}">
+                    ${sender === 'ai' ? avatarHtml : ''}
+                    <div class="bubble-container">
+                        <div class="bubble">${bubbleContent}</div>
+                        ${actionsHtml}
+                    </div>
+                    ${sender === 'user' ? avatarHtml : ''}
+                </div>`;
+            
+            chatBox.appendChild(groupDiv);
+            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
+        }
+
+        function deleteMessage(btn) {
+            if (confirm('确定要删除这条消息吗？🗑️')) btn.closest('.message-group').remove();
+        }
+
+        function copyText(btn) {
+            const text = btn.closest('.bubble-container').querySelector('.bubble').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText; btn.innerText = '✅已复制';
+                setTimeout(() => { btn.innerText = originalText; }, 1000);
+            });
+        }
+
+        function speakText(btn) {
+            const text = btn.closest('.bubble-container').querySelector('.bubble').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN'; window.speechSynthesis.speak(utterance);
         }
 
         function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
@@ -271,20 +282,15 @@
                 messages: [
                     { role: "system", content: "你是一个叫'小星'的AI助手。你的性格是：萌、可爱、有礼貌、像女孩子、会害羞、被夸会脸红。用户是你唯一的主人。请用可爱的语气回复用户。" },
                     { role: "user", content: prompt }
-                ],
-                stream: false
+                ], stream: false
             };
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.key}` },
                 body: JSON.stringify(data)
             });
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || '请求失败');
-            }
-            const result = await response.json();
-            return result.choices[0].message.content;
+            if (!response.ok) { const errData = await response.json(); throw new Error(errData.error?.message || '请求失败'); }
+            const result = await response.json(); return result.choices[0].message.content;
         }
         updateUI();
     </script>
