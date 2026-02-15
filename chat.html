@@ -26,8 +26,11 @@
         input:focus { border-color: var(--accent); }
         button { margin-left: 10px; background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 80%; max-width: 300px; text-align: center; }
-        .modal input { width: 90%; margin: 10px 0; }
+        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 85%; max-width: 320px; text-align: left; max-height: 80vh; overflow-y: auto; }
+        .modal input, .modal select { width: 95%; margin: 5px 0 15px 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
+        .modal label { font-size: 0.85em; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 8px; }
         .typing-indicator { display: none; color: #888; font-size: 0.8em; margin-left: 60px; margin-bottom: 10px; }
     </style>
 </head>
@@ -35,14 +38,14 @@
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
-            <span>和小星聊天 💬</span>
+            <span id="headerTitle">和小星聊天 💬</span>
             <div class="settings-btn" onclick="toggleSettings()"><i class="fas fa-cog"></i></div>
         </div>
         
         <div class="chat-box" id="chatBox">
             <div class="message ai">
                 <div class="avatar">⭐</div>
-                <div class="bubble">主人好！请点击右上角齿轮⚙️，填入你的 Gemini Key 就可以和小星聊天啦！✨</div>
+                <div class="bubble">主人好！我是升级版的小星！<br>请点击右上角设置⚙️，填入Key并拉取模型哦！✨</div>
             </div>
         </div>
 
@@ -55,133 +58,189 @@
     </div>
 
     <!-- 设置弹窗 -->
-<div class="modal" id="settingsModal">
-    <div class="modal-content">
-        <h3>设置 API 🛠️</h3>
-        
-        <p style="text-align:left; font-size:0.8em; margin-bottom:5px;">API 地址 (Host):</p>
-        <input type="text" id="apiHostInput" placeholder="例如: https://oneapi.xxx.com">
-        
-        <p style="text-align:left; font-size:0.8em; margin-bottom:5px;">API 密钥 (Key):</p>
-        <input type="password" id="apiKeyInput" placeholder="粘贴你的 Key">
-        
-        <button onclick="saveSettings()">保存配置</button>
-        <button onclick="toggleSettings()" style="background:#ccc; margin-top:10px;">关闭</button>
-    </div>
-</div> <script>
-    // 初始化
-    let apiKey = localStorage.getItem('geminiKey');
-    let apiHost = localStorage.getItem('geminiHost') || 'https://generativelanguage.googleapis.com'; // 默认官方
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>设置 API 🛠️</h3>
+            
+            <label>API 地址 (Host):</label>
+            <input type="text" id="apiHostInput" placeholder="例如: https://api.openai-proxy.com" value="https://api.openai.com">
+            
+            <label>API 密钥 (Key):</label>
+            <input type="password" id="apiKeyInput" placeholder="sk-xxxxxxxx">
+
+            <div class="btn-group">
+                <button onclick="fetchModels()" style="background:#4CAF50;">📥 拉取模型列表</button>
+            </div>
+
+            <label style="margin-top:15px;">选择模型:</label>
+            <select id="modelSelect">
+                <option value="gemini-pro">gemini-pro (默认)</option>
+                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+            </select>
+            
+            <div class="btn-group" style="margin-top:20px;">
+                <button onclick="saveSettings()">💾 保存配置</button>
+                <button onclick="toggleSettings()" style="background:#ccc;">关闭</button>
+            </div>
+        </div>
+    </div><script>
+    // 初始化配置
+    let config = {
+        host: localStorage.getItem('apiHost') || 'https://api.openai.com',
+        key: localStorage.getItem('apiKey') || '',
+        model: localStorage.getItem('apiModel') || 'gemini-pro'
+    };
+
     const chatBox = document.getElementById('chatBox');
+    
+    // 更新界面显示
+    function updateUI() {
+        document.getElementById('apiHostInput').value = config.host;
+        document.getElementById('apiKeyInput').value = config.key;
+        const select = document.getElementById('modelSelect');
+        if (!select.querySelector(`option[value="${config.model}"]`)) {
+            const opt = document.createElement('option');
+            opt.value = config.model;
+            opt.text = config.model + ' (当前)';
+            select.add(opt);
+        }
+        select.value = config.model;
+        document.getElementById('headerTitle').innerText = `和小星聊天 (${config.model})`;
+    }
 
     function toggleSettings() {
         const modal = document.getElementById('settingsModal');
         modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        if (modal.style.display === 'flex') {
-            document.getElementById('apiKeyInput').value = apiKey || '';
-            document.getElementById('apiHostInput').value = apiHost;
-        }
+        if (modal.style.display === 'flex') updateUI();
     }
 
-    function saveSettings() {
-        const hostInput = document.getElementById('apiHostInput').value.trim();
-        const keyInput = document.getElementById('apiKeyInput').value.trim();
+    // 拉取模型列表
+    async function fetchModels() {
+        const host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
+        const key = document.getElementById('apiKeyInput').value.trim();
+        
+        if (!key) return alert('请先填入 API Key！🥺');
 
-        if (keyInput) {
-            // 处理地址：去掉末尾斜杠
-            let cleanHost = hostInput.replace(/\/$/, '');
-            // 如果用户没填地址，就用默认的
-            if (!cleanHost) cleanHost = 'https://generativelanguage.googleapis.com';
-
-            localStorage.setItem('geminiKey', keyInput);
-            localStorage.setItem('geminiHost', cleanHost);
-            
-            apiKey = keyInput;
-            apiHost = cleanHost;
-            
-            alert('配置已保存！🎉');
-            toggleSettings();
-        } else {
-            alert('Key 不能为空哦！🥺');
-        }
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        if (!text) return;
-
-        if (!apiKey) {
-            alert('请先去设置里填 API Key！🔑');
-            toggleSettings();
-            return;
-        }
-
-        addMessage(text, 'user');
-        input.value = '';
-
-        const typing = document.getElementById('typingIndicator');
-        typing.style.display = 'block';
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = '拉取中...';
+        btn.disabled = true;
 
         try {
-            const response = await callGeminiAPI(text);
-            typing.style.display = 'none';
-            addMessage(response, 'ai');
+            // 尝试标准的 OpenAI 格式 /v1/models
+            const response = await fetch(`${host}/v1/models`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${key}` }
+            });
+
+            if (!response.ok) throw new Error('拉取失败: ' + response.status);
+
+            const data = await response.json();
+            const select = document.getElementById('modelSelect');
+            select.innerHTML = ''; // 清空旧选项
+
+            const models = data.data.sort((a, b) => a.id.localeCompare(b.id));
+            models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.text = m.id;
+                select.add(opt);
+            });
+
+            alert(`成功拉取到 ${models.length} 个模型！🎉`);
         } catch (error) {
-            typing.style.display = 'none';
-            addMessage('出错啦... 🥺\n' + error.message, 'ai');
+            alert('拉取失败，请检查地址和Key是否正确！\n' + error.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
-    }
+    }function saveSettings() {
+            config.host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
+            config.key = document.getElementById('apiKeyInput').value.trim();
+            config.model = document.getElementById('modelSelect').value;
 
-    function addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${sender}`;
-        let avatarHtml = sender === 'ai' ? '<div class="avatar">⭐</div>' : '<div class="avatar">🐷</div>';
-        let bubbleHtml = `<div class="bubble">${typeof marked !== 'undefined' ? marked.parse(text) : text}</div>`;
-        
-        if (sender === 'ai') msgDiv.innerHTML = avatarHtml + bubbleHtml;
-        else msgDiv.innerHTML = bubbleHtml + avatarHtml;
-        
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            localStorage.setItem('apiHost', config.host);
+            localStorage.setItem('apiKey', config.key);
+            localStorage.setItem('apiModel', config.model);
 
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') sendMessage();
-    }
-
-    async function callGeminiAPI(prompt) {
-        // 拼接完整URL
-        // 注意：中转站通常也是兼容这个路径的 /v1beta/models/gemini-pro:generateContent
-        // 如果你的中转站路径不一样，可能需要在这里调整
-        const url = `${apiHost}/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-        
-        const data = {
-            contents: [{
-                parts: [{
-                    text: "你是一个叫'小星'的AI助手。你的性格是：萌、可爱、有礼貌、像女孩子、会害羞、被夸会脸红。用户是你唯一的主人。请用可爱的语气回复用户。用户说：" + prompt
-                }]
-            }]
-        };
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error?.message || '请求失败');
+            updateUI();
+            alert('配置已保存！🎉');
+            toggleSettings();
         }
 
-        const result = await response.json();
-        if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
-             return result.candidates[0].content.parts[0].text;
-        } else {
-            return "小星不知道说什么... (空回复)";
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!config.key) {
+                alert('请先去设置里填 API Key！🔑');
+                toggleSettings();
+                return;
+            }
+
+            addMessage(text, 'user');
+            input.value = '';
+
+            const typing = document.getElementById('typingIndicator');
+            typing.style.display = 'block';
+
+            try {
+                const response = await callChatAPI(text);
+                typing.style.display = 'none';
+                addMessage(response, 'ai');
+            } catch (error) {
+                typing.style.display = 'none';
+                addMessage('出错啦... 🥺\n' + error.message, 'ai');
+            }
         }
-    }
-</script>
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            let avatarHtml = sender === 'ai' ? '<div class="avatar">⭐</div>' : '<div class="avatar">🐷</div>';
+            let bubbleHtml = `<div class="bubble">${typeof marked !== 'undefined' ? marked.parse(text) : text}</div>`;
+            if (sender === 'ai') msgDiv.innerHTML = avatarHtml + bubbleHtml;
+            else msgDiv.innerHTML = bubbleHtml + avatarHtml;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+
+        // 通用聊天接口 (OpenAI 格式)
+        async function callChatAPI(prompt) {
+            const url = `${config.host}/v1/chat/completions`;
+            
+            const data = {
+                model: config.model,
+                messages: [
+                    { role: "system", content: "你是一个叫'小星'的AI助手。你的性格是：萌、可爱、有礼貌、像女孩子、会害羞、被夸会脸红。用户是你唯一的主人。请用可爱的语气回复用户。" },
+                    { role: "user", content: prompt }
+                ],
+                stream: false
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.key}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || '请求失败');
+            }
+
+            const result = await response.json();
+            return result.choices[0].message.content;
+        }
+        
+        // 初始化运行一次
+        updateUI();
+    </script>
 </body>
 </html>
