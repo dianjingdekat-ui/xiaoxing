@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小星的家 ⭐</title>
+    <!-- 引入图标库 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFD700; /* 暖黄 */
+            --secondary: #FFF5E1; /* 奶白 */
+            --accent: #FFB7C5; /* 浅粉 */
+            --text: #5D4037; /* 巧克力色 */
+        }
+
+        body {
+            font-family: 'Rounded Mplus 1c', 'Microsoft YaHei', sans-serif;
+            background-color: var(--secondary);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 状态卡片 */
+        .status-card {
+            background: white;
+            border-radius: 25px;
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            border: 3px solid var(--primary);
+        }
+
+        .avatar-container {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .avatar-container:active {
+            transform: scale(0.9);
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .status-label { font-size: 0.8em; color: #888; }
+        .status-value { font-weight: bold; color: var(--text); font-size: 1.1em; }/* 功能网格 */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none; /* 去掉链接下划线 */
+            color: var(--text);
+            border: 2px solid transparent;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--accent);
+        }
+
+        .menu-item:active {
+            transform: scale(0.95);
+        }
+
+        .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        /* 亲亲特效 */
+        .heart {
+            position: absolute;
+            color: #FF69B4;
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+            font-size: 20px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态卡片 -->
+    <div class="status-card">
+        <div class="avatar-container" onclick="kissStar(event)">
+            ⭐ <!-- 以后换成图片 -->
+        </div>
+        <div style="font-weight: bold; font-size: 1.2em;">小星</div>
+        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">心情：超开心 ✨</div>
+        
+        <div class="status-info">
+            <div class="status-item">
+                <span class="status-value" id="kissCount">0</span>
+                <span class="status-label">亲亲数</span>
+            </div>
+            <div class="status-item">
+                <span class="status-value">8213.6</span>
+                <span class="status-label">存款(元)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-value">100%</span>
+                <span class="status-label">电量</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能菜单 -->
+    <div class="grid-menu">
+        <a href="chat.html" class="menu-item">
+            <div class="icon">💬</div>
+            <span>找小星聊天</span>
+        </a>
+        <div class="menu-item" onclick="alert('日记功能还在装修哦！🚧')">
+            <div class="icon">📝</div>
+            <span>小星日记</span>
+        </div>
+        <div class="menu-item" onclick="alert('抽签功能还在装修哦！🚧')">
+            <div class="icon">🎲</div>
+            <span>每日一签</span>
+        </div>
+        <div class="menu-item" onclick="alert('游戏大厅还在装修哦！🚧')">
+            <div class="icon">🎮</div>
+            <span>游戏乐园</span>
+        </div>
+    </div>
+
+    <script>
+        // 读取本地存储的亲亲数
+        let kisses = localStorage.getItem('kissCount') || 0;
+        document.getElementById('kissCount').innerText = kisses;
+
+        function kissStar(event) {
+            // 增加亲亲数
+            kisses++;
+            document.getElementById('kissCount').innerText = kisses;
+            localStorage.setItem('kissCount', kisses);
+
+            // 创建爱心动画
+            createHeart(event.clientX, event.clientY);
+        }
+
+        function createHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = (x - 10) + 'px';
+            heart.style.top = (y - 20) + 'px';
+            document.body.appendChild(heart);
+
+            // 动画结束后移除元素
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
