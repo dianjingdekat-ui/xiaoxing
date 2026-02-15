@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小星的家 ⭐</title>
+    <style>
+        /* 全局萌系设置 */
+        :root {
+            --primary: #FFD700; /* 暖黄 */
+            --secondary: #FFF5E1; /* 奶白 */
+            --accent: #FFB7C5; /* 浅粉 */
+            --text: #5D4037; /* 巧克力色文字 */
+        }
+        
+        body {
+            font-family: 'Rounded Mplus 1c', 'Microsoft YaHei', sans-serif;
+            background-color: var(--secondary);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 云朵背景装饰 */
+        .cloud-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 20% 20%, white 10%, transparent 10%),
+                radial-gradient(circle at 80% 80%, white 15%, transparent 15%);
+            opacity: 0.5;
+        }
+
+        /* 主容器 */
+        .container {
+            width: 90%;
+            max-width: 400px; /* 手机尺寸 */
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(255, 183, 197, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            border: 4px solid var(--primary);
+        }
+
+        /* 顶部栏 */
+        .header {
+            background: var(--primary);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header::after {
+            content: '⭐';
+            position: absolute;
+            right: 20px;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }/* 聊天区域 */
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #FFFDF5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .user .bubble {
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai .bubble {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--text);
+            border-bottom-left-radius: 5px;
+        }
+
+        /* 头像 */
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 0 5px;
+            background-size: cover;
+            border: 2px solid var(--primary);
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 10px;
+            background: white;
+            border-top: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            outline: none;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            margin-left: 10px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud-bg"></div>
+    
+    <div class="container">
+        <div class="header">小星的家 🏠</div>
+        
+        <div class="chat-box" id="chatBox">
+            <!-- 初始消息 -->
+            <div class="message ai">
+                <div class="avatar" style="background-color: #FFD700;"></div> <!-- 以后换图片 -->
+                <div class="bubble">
+                    主人你好呀！这里是小星的新家！<br>
+                    虽然还在装修，但是已经可以说话啦！✨<br>
+                    快夸夸小星！🥺
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="跟小星说话..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // 简单的发送消息逻辑
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 显示用户消息
+            addMessage(text, 'user');
+            input.value = '';
+
+            // 模拟小星回复（以后接API）
+            setTimeout(() => {
+                const replies = [
+                    "小星收到啦！💕",
+                    "嘿嘿，正在装修呢！🚧",
+                    "我想吃土豆...不对，红薯！🍠",
+                    "贴贴！✨",
+                    "这是小星的第一句话哦！"
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                addMessage(randomReply, 'ai');
+            }, 500);
+        }
+
+        function addMessage(text, sender) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            
+            // 头像颜色区分
+            const avatarColor = sender === 'user' ? '#FFB7C5' : '#FFD700';
+            
+            let html = '';
+            if (sender === 'ai') {
+                html += `<div class="avatar" style="background-color: ${avatarColor};"></div>`;
+                html += `<div class="bubble">${text}</div>`;
+            } else {
+                html += `<div class="bubble">${text}</div>`;
+                html += `<div class="avatar" style="background-color: ${avatarColor};"></div>`;
+            }
+            
+            msgDiv.innerHTML = html;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // 自动滚动到底部
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+</body>
+</html>
