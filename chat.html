@@ -2,18 +2,41 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>和小星聊天 💬</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root { --primary: #FFD700; --secondary: #FFF5E1; --accent: #FFB7C5; --text: #5D4037; }
+        * { box-sizing: border-box; }
         body { font-family: 'Rounded Mplus 1c', 'Microsoft YaHei', sans-serif; background-color: var(--secondary); color: var(--text); margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        .container { width: 100%; height: 100%; max-width: 600px; background: white; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
-        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 1.1em; }
+        
+        /* 容器样式调整 */
+        .container { 
+            width: 100%; 
+            height: 100%; /* 占满屏幕 */
+            max-width: 600px; 
+            background: white; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.05); 
+        }
+        
+        .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 1.1em; height: 60px; flex-shrink: 0; }
         .back-btn { color: white; text-decoration: none; font-size: 1.2em; }
         .settings-btn { cursor: pointer; font-size: 1.2em; }
-        .chat-box { flex: 1; padding: 15px; overflow-y: auto; background: #FFFDF5; scroll-behavior: smooth; }
+        
+        /* 聊天区域 */
+        .chat-box { 
+            flex: 1; 
+            padding: 15px; 
+            padding-bottom: 80px; /* 留出底部输入框的位置 */
+            overflow-y: auto; 
+            background: #FFFDF5; 
+            scroll-behavior: smooth; 
+        }
+        
         .message { margin-bottom: 15px; display: flex; align-items: flex-start; }
         .message.user { flex-direction: row-reverse; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin: 0 10px; flex-shrink: 0; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; font-size: 20px; }
@@ -21,31 +44,46 @@
         .bubble { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 0.95em; line-height: 1.5; word-wrap: break-word; position: relative; }
         .user .bubble { background: var(--accent); color: white; border-bottom-right-radius: 5px; }
         .ai .bubble { background: white; border: 2px solid var(--primary); color: var(--text); border-bottom-left-radius: 5px; }
-        .input-area { padding: 10px; background: white; border-top: 2px solid #eee; display: flex; align-items: center; }
+        
+        /* 强制定位到底部的输入框 */
+        .input-area { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 70px;
+            padding: 10px; 
+            background: white; 
+            border-top: 2px solid #eee; 
+            display: flex; 
+            align-items: center; 
+            z-index: 100;
+        }
+        
         input { flex: 1; padding: 12px; border: 2px solid var(--secondary); border-radius: 25px; outline: none; font-size: 1em; }
         input:focus { border-color: var(--accent); }
-        button { margin-left: 10px; background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        button { margin-left: 10px; background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 20px; border-radius: 20px; width: 85%; max-width: 320px; text-align: left; max-height: 80vh; overflow-y: auto; }
-        .modal input, .modal select { width: 95%; margin: 5px 0 15px 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
+        .modal input, .modal select { width: 100%; margin: 5px 0 15px 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
         .modal label { font-size: 0.85em; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 8px; }
         .typing-indicator { display: none; color: #888; font-size: 0.8em; margin-left: 60px; margin-bottom: 10px; }
     </style>
-</head>
-<body>
+</head><body>
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
-            <span id="headerTitle">和小星聊天 💬</span>
+            <span>和小星聊天 💬</span>
             <div class="settings-btn" onclick="toggleSettings()"><i class="fas fa-cog"></i></div>
         </div>
         
         <div class="chat-box" id="chatBox">
             <div class="message ai">
                 <div class="avatar">⭐</div>
-                <div class="bubble">主人好！我是升级版的小星！<br>请点击右上角设置⚙️，填入Key并拉取模型哦！✨</div>
+                <div class="bubble">主人好！请点击右上角设置⚙️，填入Key并拉取模型哦！✨</div>
             </div>
         </div>
 
@@ -75,7 +113,6 @@
             <label style="margin-top:15px;">选择模型:</label>
             <select id="modelSelect">
                 <option value="gemini-pro">gemini-pro (默认)</option>
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
             </select>
             
             <div class="btn-group" style="margin-top:20px;">
@@ -93,7 +130,7 @@
 
     const chatBox = document.getElementById('chatBox');
     
-    // 更新界面显示
+    // 更新界面显示（不改标题）
     function updateUI() {
         document.getElementById('apiHostInput').value = config.host;
         document.getElementById('apiKeyInput').value = config.key;
@@ -101,11 +138,10 @@
         if (!select.querySelector(`option[value="${config.model}"]`)) {
             const opt = document.createElement('option');
             opt.value = config.model;
-            opt.text = config.model + ' (当前)';
+            opt.text = config.model;
             select.add(opt);
         }
         select.value = config.model;
-        document.getElementById('headerTitle').innerText = `和小星聊天 (${config.model})`;
     }
 
     function toggleSettings() {
@@ -114,11 +150,9 @@
         if (modal.style.display === 'flex') updateUI();
     }
 
-    // 拉取模型列表
     async function fetchModels() {
         const host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
         const key = document.getElementById('apiKeyInput').value.trim();
-        
         if (!key) return alert('请先填入 API Key！🥺');
 
         const btn = event.target;
@@ -127,18 +161,15 @@
         btn.disabled = true;
 
         try {
-            // 尝试标准的 OpenAI 格式 /v1/models
             const response = await fetch(`${host}/v1/models`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${key}` }
             });
-
             if (!response.ok) throw new Error('拉取失败: ' + response.status);
 
             const data = await response.json();
             const select = document.getElementById('modelSelect');
-            select.innerHTML = ''; // 清空旧选项
-
+            select.innerHTML = '';
             const models = data.data.sort((a, b) => a.id.localeCompare(b.id));
             models.forEach(m => {
                 const opt = document.createElement('option');
@@ -146,24 +177,20 @@
                 opt.text = m.id;
                 select.add(opt);
             });
-
             alert(`成功拉取到 ${models.length} 个模型！🎉`);
         } catch (error) {
-            alert('拉取失败，请检查地址和Key是否正确！\n' + error.message);
+            alert('拉取失败！\n' + error.message);
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
         }
-    }function saveSettings() {
+    }        function saveSettings() {
             config.host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
             config.key = document.getElementById('apiKeyInput').value.trim();
             config.model = document.getElementById('modelSelect').value;
-
             localStorage.setItem('apiHost', config.host);
             localStorage.setItem('apiKey', config.key);
             localStorage.setItem('apiModel', config.model);
-
-            updateUI();
             alert('配置已保存！🎉');
             toggleSettings();
         }
@@ -172,16 +199,10 @@
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
-
-            if (!config.key) {
-                alert('请先去设置里填 API Key！🔑');
-                toggleSettings();
-                return;
-            }
+            if (!config.key) { alert('请先填 API Key！🔑'); toggleSettings(); return; }
 
             addMessage(text, 'user');
             input.value = '';
-
             const typing = document.getElementById('typingIndicator');
             typing.style.display = 'block';
 
@@ -208,10 +229,8 @@
 
         function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
-        // 通用聊天接口 (OpenAI 格式)
         async function callChatAPI(prompt) {
             const url = `${config.host}/v1/chat/completions`;
-            
             const data = {
                 model: config.model,
                 messages: [
@@ -220,26 +239,18 @@
                 ],
                 stream: false
             };
-
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${config.key}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.key}` },
                 body: JSON.stringify(data)
             });
-
             if (!response.ok) {
                 const errData = await response.json();
                 throw new Error(errData.error?.message || '请求失败');
             }
-
             const result = await response.json();
             return result.choices[0].message.content;
         }
-        
-        // 初始化运行一次
         updateUI();
     </script>
 </body>
