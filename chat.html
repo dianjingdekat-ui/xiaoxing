@@ -11,27 +11,20 @@
         * { box-sizing: border-box; }
         body { font-family: 'Rounded Mplus 1c', 'Microsoft YaHei', sans-serif; background-color: var(--secondary); color: var(--text); margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         
-        /* 容器样式调整 */
         .container { 
-            width: 100%; 
-            height: 100%; /* 占满屏幕 */
-            max-width: 600px; 
-            background: white; 
-            display: flex; 
-            flex-direction: column; 
-            position: relative; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.05); 
+            width: 100%; height: 100%; max-width: 600px; 
+            background: white; display: flex; flex-direction: column; 
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); 
         }
         
         .header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; font-size: 1.1em; height: 60px; flex-shrink: 0; }
         .back-btn { color: white; text-decoration: none; font-size: 1.2em; }
         .settings-btn { cursor: pointer; font-size: 1.2em; }
         
-        /* 聊天区域 */
         .chat-box { 
             flex: 1; 
             padding: 15px; 
-            padding-bottom: 80px; /* 留出底部输入框的位置 */
+            padding-bottom: 120px; /* 防止被底部挡住 */
             overflow-y: auto; 
             background: #FFFDF5; 
             scroll-behavior: smooth; 
@@ -41,39 +34,41 @@
         .message.user { flex-direction: row-reverse; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin: 0 10px; flex-shrink: 0; border: 2px solid var(--primary); display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .user .avatar { background: #FFB7C5; } .ai .avatar { background: #FFD700; }
-        .bubble { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 0.95em; line-height: 1.5; word-wrap: break-word; position: relative; }
+        
+        .bubble { max-width: 70%; padding: 8px 12px; border-radius: 20px; font-size: 0.95em; line-height: 1.4; word-wrap: break-word; position: relative; }
         .user .bubble { background: var(--accent); color: white; border-bottom-right-radius: 5px; }
         .ai .bubble { background: white; border: 2px solid var(--primary); color: var(--text); border-bottom-left-radius: 5px; }
+        .bubble p { margin: 5px 0; } /* 压缩段落间距 */
         
-        /* 核武器级定位 */
-.input-area { 
-    position: fixed;  /* 以前是 absolute，现在改 fixed */
-    bottom: 0; 
-    left: 50%;        /* 居中大法 */
-    transform: translateX(-50%); 
-    width: 100%; 
-    max-width: 600px; /* 跟容器一样宽 */
-    height: 70px;
-    padding: 10px; 
-    background: white; 
-    border-top: 2px solid #eee; 
-    display: flex; 
-    align-items: center; 
-    z-index: 9999;    /* 层级拉满 */
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); /* 加个阴影看清楚点 */
-}
+        /* 底部工具栏 + 输入框 */
+        .input-wrapper {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 600px;
+            background: white; border-top: 1px solid #eee;
+            display: flex; flex-direction: column;
+            padding: 5px 10px 10px 10px;
+            z-index: 9999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .toolbar {
+            display: flex; gap: 20px; padding: 5px 10px 8px 10px;
+            color: #aaa; font-size: 1.1em;
+        }
+        .tool-btn { cursor: pointer; transition: color 0.2s; }
+        .tool-btn:hover { color: var(--primary); }
         
-        input { flex: 1; padding: 12px; border: 2px solid var(--secondary); border-radius: 25px; outline: none; font-size: 1em; }
+        .input-area { display: flex; align-items: center; width: 100%; }
+        input { flex: 1; padding: 10px; border: 2px solid var(--secondary); border-radius: 25px; outline: none; font-size: 1em; height: 40px; }
         input:focus { border-color: var(--accent); }
-        button { margin-left: 10px; background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        button { margin-left: 10px; background: var(--primary); border: none; color: white; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer; height: 40px; white-space: nowrap; }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10000; }
         .modal-content { background: white; padding: 20px; border-radius: 20px; width: 85%; max-width: 320px; text-align: left; max-height: 80vh; overflow-y: auto; }
         .modal input, .modal select { width: 100%; margin: 5px 0 15px 0; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
         .modal label { font-size: 0.85em; color: #666; font-weight: bold; display: block; margin-bottom: 5px; }
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-group button { flex: 1; margin: 0; font-size: 0.9em; padding: 8px; }
-        .typing-indicator { display: none; color: #888; font-size: 0.8em; margin-left: 60px; margin-bottom: 10px; }
     </style>
 </head><body>
     <div class="container">
@@ -90,11 +85,20 @@
             </div>
         </div>
 
-        <div class="typing-indicator" id="typingIndicator">小星正在思考... ⭐</div>
-
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="说点什么..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">发送</button>
+        <!-- 底部输入区域 + 工具栏 -->
+        <div class="input-wrapper">
+            <!-- 工具栏：图片、语音、视频、重新生成 -->
+            <div class="toolbar">
+                <i class="fas fa-image tool-btn" onclick="alert('发图片功能还在开发中哦！📸')"></i>
+                <i class="fas fa-microphone tool-btn" onclick="alert('语音功能还在开发中哦！🎤')"></i>
+                <i class="fas fa-video tool-btn" onclick="alert('视频通话还在开发中哦！📹')"></i>
+                <i class="fas fa-sync-alt tool-btn" onclick="regenerateReply()" title="重新生成回复" style="margin-left:auto;"></i>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="说点什么..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">发送</button>
+            </div>
         </div>
     </div>
 
@@ -130,10 +134,11 @@
         key: localStorage.getItem('apiKey') || '',
         model: localStorage.getItem('apiModel') || 'gemini-pro'
     };
+    
+    let lastUserMessage = ""; // 记录上一条消息用于重试
 
     const chatBox = document.getElementById('chatBox');
     
-    // 更新界面显示（不改标题）
     function updateUI() {
         document.getElementById('apiHostInput').value = config.host;
         document.getElementById('apiKeyInput').value = config.key;
@@ -187,42 +192,69 @@
             btn.innerText = originalText;
             btn.disabled = false;
         }
-    }        function saveSettings() {
-            config.host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
-            config.key = document.getElementById('apiKeyInput').value.trim();
-            config.model = document.getElementById('modelSelect').value;
-            localStorage.setItem('apiHost', config.host);
-            localStorage.setItem('apiKey', config.key);
-            localStorage.setItem('apiModel', config.model);
-            alert('配置已保存！🎉');
-            toggleSettings();
-        }
+    }
 
-        async function sendMessage() {
+    function saveSettings() {
+        config.host = document.getElementById('apiHostInput').value.trim().replace(/\/$/, '');
+        config.key = document.getElementById('apiKeyInput').value.trim();
+        config.model = document.getElementById('modelSelect').value;
+        localStorage.setItem('apiHost', config.host);
+        localStorage.setItem('apiKey', config.key);
+        localStorage.setItem('apiModel', config.model);
+        alert('配置已保存！🎉');
+        toggleSettings();
+    }        async function sendMessage() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
             if (!config.key) { alert('请先填 API Key！🔑'); toggleSettings(); return; }
 
+            lastUserMessage = text; // 保存这一条
             addMessage(text, 'user');
             input.value = '';
-            const typing = document.getElementById('typingIndicator');
-            typing.style.display = 'block';
+
+            await sendToAI(text);
+        }
+        
+        async function regenerateReply() {
+            if (!lastUserMessage) return alert("还没有发过消息哦！无法重新生成！");
+            
+            const headerTitle = document.querySelector('.header span');
+            const originalTitle = headerTitle.innerText;
+            headerTitle.innerText = '小星正在重新思考... 🔄';
+            
+            // 这里为了简单，我们直接再发一次请求，不删除旧消息
+            // 以后可以做成把最后一条消息删掉再重发
+            
+            try {
+                const response = await callChatAPI(lastUserMessage);
+                addMessage(response, 'ai');
+            } catch (error) {
+                addMessage('重试失败啦... 🥺\n' + error.message, 'ai');
+            } finally {
+                headerTitle.innerText = originalTitle;
+            }
+        }
+
+        async function sendToAI(text) {
+            const headerTitle = document.querySelector('.header span');
+            const originalTitle = headerTitle.innerText;
+            headerTitle.innerText = '小星正在思考... 🤔';
 
             try {
                 const response = await callChatAPI(text);
-                typing.style.display = 'none';
                 addMessage(response, 'ai');
             } catch (error) {
-                typing.style.display = 'none';
                 addMessage('出错啦... 🥺\n' + error.message, 'ai');
+            } finally {
+                headerTitle.innerText = originalTitle;
             }
         }
 
         function addMessage(text, sender) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${sender}`;
-            let avatarHtml = sender === 'ai' ? '<div class="avatar">⭐</div>' : '<div class="avatar">🐷</div>';
+            let avatarHtml = sender === 'ai' ? '<div class="avatar">⭐</div>' : '<div class="avatar">👤</div>';
             let bubbleHtml = `<div class="bubble">${typeof marked !== 'undefined' ? marked.parse(text) : text}</div>`;
             if (sender === 'ai') msgDiv.innerHTML = avatarHtml + bubbleHtml;
             else msgDiv.innerHTML = bubbleHtml + avatarHtml;
